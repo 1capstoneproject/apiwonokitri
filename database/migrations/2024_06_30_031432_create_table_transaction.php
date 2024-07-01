@@ -21,6 +21,16 @@ return new class extends Migration
             $table->float('price');
             $table->integer('quantity');
             $table->float('total');
+            $table->string('order_data')->nullable();
+            $table->string('cancel_reason')->nullable();
+            $table->string('refund_reason')->nullable();
+            $table->string('customer_note')->nullable();
+            $table->string('admin_note')->nullable();
+            $table->string('payment_id')->unique()->nullable();
+            $table->timestamp('payment_time')->nullable();
+            $table->string('payment_method')->nullable();
+            $table->string('payment_status')->nullable();
+            $table->string('payment_code')->nullable();
             // available status (draft, inprogress, paid, cancel, refund)
             $table->string('status')->nullable()->default('draft');
             $table->timestamp('date');
