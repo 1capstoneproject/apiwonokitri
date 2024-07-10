@@ -10,13 +10,26 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
+    {   
+        Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('roles_id')->constrained()->on('roles')->onDelete('cascade');
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->string('description')->nullable();
+            $table->string('profile')->nullable();
+            $table->string('gid')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -42,6 +55,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('roles');
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
