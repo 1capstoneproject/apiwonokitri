@@ -39,7 +39,8 @@ Route::group(['prefix' => 'public'], function () {
                 }
             }
         }
-        if ($oauth) {
+        
+        if (empty($oauth)) {
             $user = Models\User::where('gid', $oauth['gid'])->first();
             if ($user) {
                 $token = $user->createToken('mobile:auth');
@@ -55,6 +56,12 @@ Route::group(['prefix' => 'public'], function () {
             } else {
                 // do create users and generate token.
                 // we will do latter
+                    
+                // create users
+                
+                // create token
+                
+                // send json
             }
         }
         // if all of that not passed will be send this note.
@@ -338,12 +345,10 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
     });
 });
 
-
-
 Route::any('/', function () {
     return response()->json([
         'error' => false,
-        'messages' => 'Nengndi Endpoint Api',
+        'messages' => 'WonokitriTourism Endpoint Api',
         'data' => [
             'version' => '1.0.0'
         ],
