@@ -56,7 +56,7 @@ class BannerController extends Controller
         }
     }
 
-    public function BannerEdit(Request $request, $id){
+   public function BannerEdit(Request $request, $id){
         try{
             $dataBanner = $request->validate([
                 'name' => 'nullable|string',
@@ -65,7 +65,6 @@ class BannerController extends Controller
             $banner = Models\Banner::find($id);
             if(!$banner){
                 back()->withErrors([
-                    'title' => 'Error Action Edit',
                     'mesages' => 'Error on Edit Banner',
                 ]);
             }

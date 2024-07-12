@@ -38,7 +38,6 @@ class UsersController extends Controller
                 $userForm['password'] = Hash::make($userForm['password']);
             }
             
-
             if($request->hasFile('profile')){
                 // save file to storage
                 $profile = Storage::url($request->file("profile")->store("public/users"));
@@ -67,12 +66,10 @@ class UsersController extends Controller
                 'description' => 'nullable|string',
             ]);
             
-            $user = Models\User::find($id);
+           $user = Models\User::find($id);
 
-            if(isset($userForm['password'])){
+            if($request->only('password')){
                 $userForm['password'] = Hash::make($userForm['password']);
-            }else{
-                unset($userForm['password']);
             }
 
             if($request->hasFile('profile')){
