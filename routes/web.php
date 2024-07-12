@@ -13,9 +13,7 @@ Route::group(['prefix' => 'auth'], function(){
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function(){
-    Route::get('/', function(Request $req){
-        return response()->view('pages.dashboard');
-    })->name('dashboard');
+    Route::get('/', [Controllers\DashboardController::class, 'Dashboard'])->name('dashboard');
 
     Route::get('/dashboard', function(Request $req){
         return response()->view('pages.dashboard');
@@ -49,5 +47,8 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
     // users
     Route::group(['prefix' => 'users'], function(){
         Route::get("/", [Controllers\UsersController::class, 'Users'])->name('users.list');
+        Route::post("/", [Controllers\UsersController::class, 'UsersCreate'])->name('users.create');
+        Route::put("/edit/{id}", [Controllers\UsersController::class, 'UsersEdit'])->name('users.edit');
+        Route::post("/delete/{id}", [Controllers\UsersController::class, 'UsersDelete'])->name('users.delete');
     });
 });
