@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(\App\Models\Role::class);
     }
+
+    public function hasRole($role){
+        $role = \App\Models\Role::where('name', $role)->first();
+        return $this->roles->id == $role->id;
+    }
 }
