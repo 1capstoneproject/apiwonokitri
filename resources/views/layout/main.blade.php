@@ -57,7 +57,6 @@
                             </a>
                         </li>
                         @endif
-                        @if(auth()->user()->hasRole('base.role_admin'))
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/product" aria-expanded="false">
                                 <span>
@@ -66,7 +65,6 @@
                                 <span class="hide-menu">Product</span>
                             </a>
                         </li>
-                        @endif
                         @if(auth()->user()->hasRole('base.role_admin'))
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/transaction" aria-expanded="false">
