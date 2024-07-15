@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', "Dashboard - Nengndi")
+@section('title', "Product - Wonokitri Tourism")
 
 @section('main')
     <div class="container-fluid w-100">
@@ -17,15 +17,16 @@
                     <h5 class="card-title fw-semibold">
                         Product Parawisata
                     </h5>
-                    <button 
+                    @if(auth()->user()->hasRole('base.role_admin'))
+                    <button
                         class="btn btn-primary py-8 px-5 text-small d-flex gap-2 align-items-center rounded-2"
                         data-bs-toggle="modal"
                         data-bs-target="#modaProductCreate"
-                    >
-                        <i class="ti ti-plus"></i> 
+                    > <i class="ti ti-plus"></i>
                         <span>Buat Product</span>
                     </button>
-                    
+                    @endif
+
                     <div class="modal fade" id="modaProductCreate" tabindex="-1" role="dialog" aria-labelledby="modaProductCreateTitle" aria-hidden="true">
                         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                             <div class="modal-content">
@@ -55,8 +56,7 @@
                                             <input type="number" name="price" class="form-control" id="price" aria-describedby="price" required>
                                         </div>
                                         <div class="col-sm-12 col-md-6">
-                                            <label for="min_order" class="form-label">Min Order</label>
-                                            <input type="number" name="min_order" class="form-control" id="min_order" aria-describedby="min_order" required>
+                                            <label for="min_order" class="form-label">Min Order</label> <input type="number" name="min_order" class="form-control" id="min_order" aria-describedby="min_order" required>
                                         </div>
                                     </div>
                                     <div class="row mb-6">
@@ -140,6 +140,7 @@
                                                 Action
                                             </button>
                                             <ul class="dropdown-menu" >
+                                                @if(auth()->user()->hasRole('base.role_admin'))
                                                 <li>
                                                     <button
                                                         class="dropdown-item"
@@ -168,31 +169,38 @@
                                                 </button>
                                                 <hr class="dropdown-divider">
                                                 <form method="POST" action="{{ route('product.toggle.event', ['id' => $product->id])}}">
-                                                    @csrf
-                                                    @method("PUT")
-                                                    <button
-                                                        class="dropdown-item"
-                                                        
-                                                    >
-                                                        <span>Beralih @if($product->is_event) Non Event @else Event @endif</span>
-                                                    </button>
+                                                @csrf
+                                                @method("PUT")
+                                                <button
+                                                    class="dropdown-item"
+                                                    @if(!$product->is_event)
+                                                    type="button"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalSetEvent{{$product->id}}"
+                                                    @else
+                                                    type="submit"
+                                                    @endif
+                                                >
+                                                    <span>Beralih @if($product->is_event) Non Event @else Event @endif</span>
+                                                </button>
                                                 </form>
                                                 <form method="POST" action="{{ route('product.toggle.package', ['id' => $product->id])}}">
                                                     @csrf
                                                     @method("PUT")
                                                     <button
                                                         class="dropdown-item"
-                                                        
+
                                                     >
                                                         <span>Beralih @if($product->is_package) Non Paket @else Paket @endif</span>
                                                     </button>
                                                 </form>
                                                 <hr class="dropdown-divider">
+                                                @endif
                                                 <form method="POST" action="{{ route('product.delete', ['id' => $product->id])}}">
                                                     @csrf
                                                     <button
                                                         class="dropdown-item text-danger"
-                                                        
+
                                                     >
                                                         <span>Hapus Product</span>
                                                     </button>
@@ -212,7 +220,7 @@
             </div>
         </div>
     </div>
-    
+
     @foreach($products as $product)
         <div class="modal fade" id="modalViewImage{{$product->id}}" tabindex="-1" role="dialog" aria-labelledby="modalViewImage{{$product->id}}Title" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -252,6 +260,35 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    @foreach($products as $product)
+        <div class="modal fade" id="modalSetEvent{{$product->id}}" tabindex="-1" role="dialog" aria-labelledby="modalSetEvent{{$product->id}}Title" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form method="POST" action="{{ route('product.toggle.event', ['id' => $product->id])}}">
+                    @csrf
+                    @method("PUT")
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalSetEvent{{$product->id}}Title">Jadikan Event</h5>
+                        <button type="button" class="close btn btn-error" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="event_date" class="form-label">Event Sampai</label>
+                            <input type="text" name="event_date" class="form-control datepicker" id="event_date" aria-describedby="event_date">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Tambah Gambar</button>
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -349,17 +386,29 @@
 
 @endsection()
 
+@section("extra-css")
+<link rel="stylesheet" href="{{ asset('/css/bootstrap-datepicker.min.css') }}">
+@endsection
 
 @section("extra-js")
+<script src="{{ asset('/js/bootstrap-datepicker.min.js') }} "></script>
 <script src="{{ asset('/js/tinymce/tinymce.min.js') }} "></script>
 <script>
     $(document).ready(function(){
+        // tinymce
         tinymce.init({
             selector: 'textarea#editor',
             plugins: 'lists',
             toolbar: 'undo redo bold italic styles alignleft aligncenter alignright justify numlist bullist decreaseindent increaseindent ',
             lists_indent_on_tab: true
         });
+
+        // datepicker
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
+
     });
 </script>
 @endsection()
