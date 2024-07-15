@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', "Dashboard - Nengndi")
+@section('title', "Transaksi - Wonokitri Tourism")
 
 @section('main')
     <div class="container-fluid">
@@ -11,7 +11,7 @@
                     {{ $error }}
                 </div>
             @endforeach
-            
+
         @endif
         <div class="card w-100">
             <div class="card-body p-4">
@@ -69,7 +69,9 @@
                                         {{ $loop->iteration }}
                                     </td>
                                     <td>
+                                        <a href="#">
                                         {{ $transaction->code }}
+                                        </a>
                                     </td>
                                     <td>
                                         {{ $transaction->Customer->name }}
@@ -99,7 +101,7 @@
                                         {{ $transaction->total }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('transaction.delete', ['id' => $transaction->id]) }}" class="btn btn-danger">
+                                        <a href="#" class="btn btn-danger">
                                             Hapus
                                         </a>
                                     </td>
