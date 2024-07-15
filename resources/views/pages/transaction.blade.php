@@ -1,10 +1,18 @@
 @extends('layouts.main')
 
-@section('title', 'Dashboard - Wonokitri Tourism')
+@section('title', "Dashboard - Nengndi")
 
 @section('main')
     <div class="container-fluid">
+        @if ($errors->any())
 
+            @foreach ($errors->all() as $error)
+                <div class="alert alert-danger">
+                    {{ $error }}
+                </div>
+            @endforeach
+            
+        @endif
         <div class="card w-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -55,7 +63,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($transactions as $transaction)
+                            @foreach($transactions as $transaction)
                                 <tr>
                                     <td>
                                         {{ $loop->iteration }}
@@ -91,8 +99,7 @@
                                         {{ $transaction->total }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('transaction.delete', ['id' => $transaction->id]) }}"
-                                            class="btn btn-danger">
+                                        <a href="{{ route('transaction.delete', ['id' => $transaction->id]) }}" class="btn btn-danger">
                                             Hapus
                                         </a>
                                     </td>
