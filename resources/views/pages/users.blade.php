@@ -125,7 +125,7 @@
                                     {{ $loop->iteration }}
                                     </td>
                                     <td>
-                                        <img src="{{ asset($user->profile) }}" width="64" class="rounded" alt="{{ $user->name }}">
+                                        <img src="{{ asset($user->profile ?? 'images/profile/no-images.png') }}" width="64" class="rounded" alt="{{ $user->name }}">
                                     </td>
                                     <td>
                                         {{ $user->name }}
