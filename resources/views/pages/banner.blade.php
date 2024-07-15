@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Dashboard - Nengndi')
+@section('title', 'App Banner - Wonokitri Tourism')
 
 @section('main')
     <div class="container-fluid">
@@ -11,7 +11,7 @@
                     {{ $error }}
                 </div>
             @endforeach
-            
+
         @endif
         <div class="card w-100">
             <div class="card-body p-4">
@@ -19,12 +19,12 @@
                     <h5 class="card-title fw-semibold">
                         Media Banner
                     </h5>
-                    <button 
+                    <button
                         class="btn btn-primary py-8 px-5 text-small d-flex gap-2 align-items-center rounded-2"
                         data-bs-toggle="modal"
                         data-bs-target="#modalBannerCreate"
                     >
-                        <i class="ti ti-plus"></i> 
+                        <i class="ti ti-plus"></i>
                         <span>Buat Banner</span>
                     </button>
                     <div class="modal fade" id="modalBannerCreate" tabindex="-1" role="dialog" aria-labelledby="modalBannerCreateTitle" aria-hidden="true">
@@ -101,7 +101,7 @@
                                                 >
                                                     <span>Edit</span>
                                                 </button>
-                                                
+
                                                 <form method="post" action="{{ route('banner.delete', ['id' => $banner->id]) }}">
                                                     @csrf
                                                     @method("delete")
