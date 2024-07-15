@@ -13,6 +13,19 @@ class Transaction extends Model
 
     protected $table = "transactions";
 
+    // catatan: beberapa data hanya boleh di lihat oleh developer
+    // ataupun superadmin yang berhubungan dengan data dari midtrans
+    // maka tidak boleh di tampilkan di api, jadi data field
+    // yang boleh users lihat adalah kode transaksi internal kita.
+
+    protected $hidden = [
+            'payment_id',
+            'payment_time',
+            'payment_method',
+            'payment_status',
+            'payment_code',
+    ];
+
     protected $fillable = [
         'code',
         'tourism_id',
@@ -23,6 +36,11 @@ class Transaction extends Model
         'total',
         'status',
         'date',
+        'phone_number',
+        'contact_name',
+        'order_data',
+        'refund_reason',
+        'cancel_reason',
     ];
 
     protected static function boot()
@@ -38,16 +56,20 @@ class Transaction extends Model
             {
                 $model->date = Carbon::now()->format("Y-m-d H:i:s");
             }
-        });
-
-        static::deleting(function ($model)
-        {
-            if(!in_array($model->status, ["draft", "cancel"]))
+             if(empty($model->status))
             {
-                throw new \Exception("Failed delete transaction because state not in draft");
+                $model->status = "draft";
             }
-
         });
+
+        // static::deleting(function ($model)
+        // {
+        //     if(!in_array($model->status, ["draft", "cancel"]))
+        //     {
+        //         throw new \Exception("Failed delete transaction because state not in draft");
+        //     }
+
+        // });
     }
 
     protected static function generateTransactionCode()
@@ -57,7 +79,7 @@ class Transaction extends Model
         $code = $timestamp . $randomDigits;
 
         // Ensure the code length matches the required length
-        return substr($code, 0, 12);
+        return "TRX".substr($code, 0, 12);
     }
 
     public function Product(){
@@ -66,5 +88,18 @@ class Transaction extends Model
 
     public function Customer(){
         return $this->belongsTo(Models\User::class, "user_id");
+    }
+
+     public function Tour(){
+        return $this->belongsTo(Models\User::class, "tourism_id");
+    }
+
+    public function OverrallBestSeller(){
+        $result = [];
+        $data = $this->where("status", "paid")->take(10)->get();
+        foreach($data as $d){
+            $result[$d->product_id->id] = $d->product_id;
+        }
+        return $result;
     }
 }
