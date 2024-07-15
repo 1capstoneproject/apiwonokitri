@@ -1,14 +1,137 @@
 @extends('layouts.main')
 
-@section('title', "Dashboard - Nengndi")
+@section('title', "Dashboard - Wonokitri Tourism")
 
 @section('main')
     <div class="container-fluid">
         @if(auth()->user()->hasRole('base.role_superadmin'))
-        <div class="row">
-            <div class="col-lg-8 d-flex align-items-strech">
-            </div> 
-        </div>
+            <div class="row">
+
+                <div class="col-lg-4 d-flex align-items-strech">
+                    <div class="card w-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <p class="card-title mb-9 fw-semibold">
+                                Est Volume Transaksi
+                            </p>
+                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                                <i class="ti ti-moneybag" style="font-size: 32px"></i>
+                                Rp. {{ number_format($totalSuperadminTransaction, 0, ',', '.') }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 d-flex align-items-strech">
+                    <div class="card w-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <p class="card-title mb-9 fw-semibold">
+                                Jumlah User
+                            </p>
+                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                                <i class="ti ti-users" style="font-size: 32px"></i>
+                                {{ $totalSuperadminAllUsers }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 d-flex align-items-strech">
+                    <div class="card w-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <p class="card-title mb-9 fw-semibold">
+                                Jumlah Admin Wisata
+                            </p>
+                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                                <i class="ti ti-users" style="font-size: 32px"></i>
+                                {{ $totalSuperadminAllAdmin }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row mt-6">
+                <div class="col-lg-12 d-flex align-items-strech">
+                    <div class="card w-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <p class="card-title mb-9 fw-semibold">
+                                Top 10 Produk Terlaris
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table text-nowrap mb-0 align-middle">
+                                    <thead class="text-dark fs-4">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama</th>
+                                            <th>Touris</th>
+                                            <td>Terjual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($totalSuperadminTopProductTerlaris as $product)
+                                            <tr>
+                                                <td>
+                                                    {{ $loop->iteration }}
+                                                </td>
+                                                <td>
+                                                    {{ $product->name }}
+                                                </td>
+                                                <td>
+                                                    {{ $product->user->name }}
+                                                </td>
+                                                <td>
+                                                    {{ $product->TotalTerjual() }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-6">
+                <div class="col-lg-12 d-flex align-items-strech">
+                    <div class="card w-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <p class="card-title mb-9 fw-semibold">
+                                Product Sedang Event
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table text-nowrap mb-0 align-middle">
+                                    <thead class="text-dark fs-4">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama</th>
+                                            <th>Touris</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($totalSuperadminProductEvent as $product)
+                                            <tr>
+                                                <td>
+                                                    {{ $loop->iteration }}
+                                                </td>
+                                                <td>
+                                                    {{ $product->name }}
+                                                </td>
+                                                <td>
+                                                    {{ $product->user->name }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endif
 
         @if(auth()->user()->hasRole('base.role_admin'))
@@ -26,7 +149,7 @@
                             </h4>
                         </div>
                     </div>
-                
+
                 </div>
                 <div class="col-lg-4 d-flex align-items-strech">
 
@@ -57,7 +180,7 @@
                         </div>
                     </div>
 
-                </div> 
+                </div>
             </div>
             <div class="row mt-3">
                 <div class="col-lg-12">
@@ -108,7 +231,7 @@
                                     <tbody>
                                         @foreach($recentUsersTransaction as $transaction)
                                             <tr>
-                                                <td>{{ loop()->iteration() }}</td>
+                                                <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     {{ $transaction->code }}
                                                 </td>
