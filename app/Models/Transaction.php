@@ -62,26 +62,24 @@ class Transaction extends Model
             }
         });
 
-        // static::deleting(function ($model)
-        // {
-        //     if(!in_array($model->status, ["draft", "cancel"]))
-        //     {
-        //         throw new \Exception("Failed delete transaction because state not in draft");
-        //     }
-
-        // });
+        static::deleting(function ($model)
+        {
+            if(!in_array($model->status, ["draft", "cancel"]))
+            {
+                throw new \Exception("Failed delete transaction because state not in draft");
+            }
+        });
     }
-
+    
     protected static function generateTransactionCode()
     {
-        $timestamp = now()->format('YmdHis'); // Current timestamp in the format YYYYMMDDHHMMSS
-        $randomDigits = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT); // 3 random digits
-        $code = $timestamp . $randomDigits;
-
-        // Ensure the code length matches the required length
-        return "TRX".substr($code, 0, 12);
+        $timestamp = now()->format('YmdHis');
+        $alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $randomChars = substr(str_shuffle($alphanumeric), 0, 3);
+        $code = $timestamp . $randomChars;
+        return "TRX" . substr($code, 0, 16);
     }
-
+    
     public function Product(){
         return $this->belongsTo(Models\Product::class, "product_id");
     }
