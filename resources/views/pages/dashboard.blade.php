@@ -1,10 +1,10 @@
 @extends('layouts.main')
 
-@section('title', "Dashboard - Wonokitri Tourism")
+@section('title', 'Dashboard - Wonokitri Tourism')
 
 @section('main')
     <div class="container-fluid">
-        @if(auth()->user()->hasRole('base.role_superadmin'))
+        @if (auth()->user()->hasRole('base.role_superadmin'))
             <div class="row">
 
                 <div class="col-lg-4 d-flex align-items-strech">
@@ -13,7 +13,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Est Volume Transaksi
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-moneybag" style="font-size: 32px"></i>
                                 Rp. {{ number_format($totalSuperadminTransaction, 0, ',', '.') }}
                             </h4>
@@ -27,7 +28,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Jumlah User
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-users" style="font-size: 32px"></i>
                                 {{ $totalSuperadminAllUsers }}
                             </h4>
@@ -41,7 +43,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Jumlah Admin Wisata
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-users" style="font-size: 32px"></i>
                                 {{ $totalSuperadminAllAdmin }}
                             </h4>
@@ -70,7 +73,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($totalSuperadminTopProductTerlaris as $product)
+                                        @foreach ($totalSuperadminTopProductTerlaris as $product)
                                             <tr>
                                                 <td>
                                                     {{ $loop->iteration }}
@@ -112,7 +115,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($totalSuperadminProductEvent as $product)
+                                        @foreach ($totalSuperadminProductEvent as $product)
                                             <tr>
                                                 <td>
                                                     {{ $loop->iteration }}
@@ -134,7 +137,7 @@
             </div>
         @endif
 
-        @if(auth()->user()->hasRole('base.role_admin'))
+        @if (auth()->user()->hasRole('base.role_admin'))
             <div class="row">
                 <div class="col-lg-4 d-flex align-items-strech">
 
@@ -143,7 +146,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Total Transaksi
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-moneybag" style="font-size: 32px"></i>
                                 Rp. {{ number_format($totalUsersTransaction, 0, ',', '.') }}
                             </h4>
@@ -158,7 +162,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Total Produk
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-box" style="font-size: 32px"></i>
                                 {{ $totalUsersProduct }}
                             </h4>
@@ -173,7 +178,8 @@
                             <p class="card-title mb-9 fw-semibold">
                                 Total Paket
                             </p>
-                            <h4 class="fw-semibold mb-3 gap-3" style="display: flex; flex-direction: row; align-items: center;">
+                            <h4 class="fw-semibold mb-3 gap-3"
+                                style="display: flex; flex-direction: row; align-items: center;">
                                 <i class="ti ti-box" style="font-size: 32px"></i>
                                 {{ $totalUsersPaket }}
                             </h4>
@@ -229,7 +235,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($recentUsersTransaction as $transaction)
+                                        @foreach ($recentUsersTransaction as $transaction)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>

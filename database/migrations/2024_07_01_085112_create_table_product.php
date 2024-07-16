@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
-            $table->string('description_details');
+            $table->text('description_details', 255);
             $table->foreignId('users_id')->constrained()->on('users')->onDelete('cascade');
             $table->float('price');
             $table->integer('min_order');
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('location');
             $table->boolean('is_event')->default(false);
             $table->boolean('is_package')->default(false);
+            $table->timestamp('event_date')->nullable();
             $table->timestamps();
         });
     }

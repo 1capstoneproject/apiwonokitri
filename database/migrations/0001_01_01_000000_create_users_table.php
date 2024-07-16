@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable()->default('');
             $table->foreignId('roles_id')->constrained()->on('roles')->onDelete('cascade');
             $table->string('phone')->nullable();
             $table->string('address')->nullable();

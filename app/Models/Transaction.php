@@ -56,7 +56,7 @@ class Transaction extends Model
             {
                 $model->date = Carbon::now()->format("Y-m-d H:i:s");
             }
-             if(empty($model->status))
+            if(empty($model->status))
             {
                 $model->status = "draft";
             }
@@ -70,7 +70,7 @@ class Transaction extends Model
             }
         });
     }
-    
+
     protected static function generateTransactionCode()
     {
         $timestamp = now()->format('YmdHis');
@@ -79,7 +79,7 @@ class Transaction extends Model
         $code = $timestamp . $randomChars;
         return "TRX" . substr($code, 0, 16);
     }
-    
+
     public function Product(){
         return $this->belongsTo(Models\Product::class, "product_id");
     }
@@ -88,7 +88,7 @@ class Transaction extends Model
         return $this->belongsTo(Models\User::class, "user_id");
     }
 
-     public function Tour(){
+    public function Tour(){
         return $this->belongsTo(Models\User::class, "tourism_id");
     }
 

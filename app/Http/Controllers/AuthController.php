@@ -38,7 +38,7 @@ class AuthController extends Controller
                 $request->session()->regenerate();
                 $request->session()->put('user', $users);
 
-                return redirect()->intended("/dashboard");
+                return redirect()->intended("/");
             }
             
             return back()->withInput()->withErrors(['password' => 'Password is invalid.']);

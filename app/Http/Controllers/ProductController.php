@@ -10,8 +10,12 @@ use App\Models;
 class ProductController extends Controller
 {
     public function Product(Request $request){
-        
-        $products = Models\Product::where('users_id', $request->user()->id)->get();
+
+        if($request->user()->hasRole('base.role_admin')){
+            $products = Models\Product::where('users_id', $request->user()->id)->get();
+        }else{
+            $products = Models\Product::all();
+        }
 
         return response()->view("pages.product", [
             'products' => $products,
@@ -81,7 +85,7 @@ class ProductController extends Controller
 
             return back()->with('success', 'success add image');
         }catch(ValidationException $e){
-            return back()->withErrors($e->validator->errors());   
+            return back()->withErrors($e->validator->errors());
         }
     }
 
@@ -96,18 +100,26 @@ class ProductController extends Controller
             return back()->with('success', 'Product image berhasil di hapus.');
         }catch(\Exception $e){
             return back()->withErrors([
-            
+
             ]);
         }
     }
 
     public function ProductToggleEvent(Request $request, $id){
         try{
-
             $product = Models\Product::find($id);
             $product->is_event = !$product->is_event;
+
+            if(!$product->is_event){
+                $product->event_date = null;
+            }else{
+                $formData = $request->validate([
+                    'event_date' => 'required|date',
+                ]);
+                $product->event_date = $formData['event_date'];
+            }
             $product->save();
-            
+
             return back()->with('success', 'success toggle product');
         }catch(\Exception $e){
             return back()->withErrors([
@@ -122,7 +134,7 @@ class ProductController extends Controller
             $product = Models\Product::find($id);
             $product->is_package = !$product->is_package;
             $product->save();
-            
+
             return back()->with('success', 'success toggle product');
         }catch(\Exception $e){
             return back()->withErrors([
@@ -175,7 +187,7 @@ class ProductController extends Controller
     public function ProductDelete(Request $request, $id){
         try{
             $product = Models\Product::find($id);
-            
+
             if(!$product){
                 return back()->with('error', 'product not found');
             }

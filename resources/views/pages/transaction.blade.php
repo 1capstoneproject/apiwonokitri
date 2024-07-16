@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', "Transaksi - Wonokitri Tourism")
+@section('title', 'Transaksi - Wonokitri Tourism')
 
 @section('main')
     <div class="container-fluid">
@@ -63,14 +63,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($transactions as $transaction)
+                            @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>
                                         {{ $loop->iteration }}
                                     </td>
                                     <td>
                                         <a href="#">
-                                        {{ $transaction->code }}
+                                            {{ $transaction->code }}
                                         </a>
                                     </td>
                                     <td>

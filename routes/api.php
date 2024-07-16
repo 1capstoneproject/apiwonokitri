@@ -8,6 +8,21 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
+
+// use Symfony\Component\Console\Output\ConsoleOutput;
+
+// note:
+// for standaritation api request must have this response
+// error: @boolean | status code is response error or not, make easy to detect response on client side, when forget add response code.
+// messages: @string | response messages
+// data: @any | data request response
+//
+// status code:
+// 200: OK
+// 400: Bad Request | error on users side like validation error issue.
+// 500: Internal Server error | error on server side like something bad happen (ex: nuclear war)
+
 
 Route::group(['prefix' => 'public'], function () {
     // auth login and register for users
@@ -94,7 +109,7 @@ Route::group(['prefix' => 'public'], function () {
             return response()->json([
                 'error' => true,
                 'messages' => 'Internal Server Error',
-                'data' => $e,
+                'data' => $e->getMessage(),
             ], 500);
         }
     });
@@ -229,13 +244,13 @@ Route::group(['prefix' => 'public'], function () {
             ], 500);
         }
     });
-    // midtrans webhook endpoint
+    // to update transaction status payment we need midtrans implementation webhooks
+    // to update transaction status code automatically.
     Route::group(['prefix' => 'webhook'], function () {
         // create payment webhook's for midtrans.
         Route::post("/notif", function(Request $request){
             try{
-                // validasi request dari server midtrans jika semua data
-                // sudah terpenuhi maka akan di proses untuk update status transaksi menjadi paid.
+                // validate midtrans webhooks transaction post request
                 $form = $request->validate([
                     'transaction_time' => 'nullable|string',
                     'transaction_status' => 'nullable|string',
@@ -257,8 +272,9 @@ Route::group(['prefix' => 'public'], function () {
                     'bank' => 'nullable|string',
                     'approval_code' => 'nullable|string',
                 ]);
-
+                // search for transaction order_id
                 $transaction = Models\Transaction::where('code', $form['order_id'])->first();
+                // return error if transaction not found.
                 if(!$transaction){
                     return response()->json([
                         'error' => true,
@@ -266,18 +282,25 @@ Route::group(['prefix' => 'public'], function () {
                         'data' => $transaction,
                     ], 400);
                 }
+                // update transaction status payment
                 if(in_array($form['transaction_status'], ["capture", "settlement"]) && $form['fraud_status'] == "accept"){
                    $transaction->status = "paid";
                    $transaction->save();
                 }elseif($form['transaction_status'] == "pending"){
+                    // get user payment method
+                    $transaction->payment_method = $form['payment_type'];
                     $transaction->status = "inprogress";
                     $transaction->save();
                 }else{
                     $transaction->status = "cancel";
                     $transaction->save();
                 }
-                
-                $transaction->status = "paid";
+                // save midtrans transaction data
+                // like time they pay and transaction status
+                $transaction->payment_status = $form['transaction_status'];
+                $transaction->payment_time = $form['transaction_time'];
+                $transaction->save();
+
                 return response()->json([
                     'error' => false,
                     'messages' => 'success update transaction status.',
@@ -302,6 +325,8 @@ Route::group(['prefix' => 'public'], function () {
 });
 
 Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function () {
+    // this requst from atik, because she want
+    // to validate the users session request.
     Route::post("/session", function (Request $request) {
         return response()->json([
             'error' => false,
@@ -347,44 +372,73 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
         }
     });
 
-    Route::put('/user/edit/{id}', function (Request $request, $id) {
+    Route::post('/user/edit/{id}', function (Request $request, $id) {
         try {
             $credentials = $request->validate([
                 'password' => 'nullable|min:8',
                 'name' => 'nullable',
-                'phone' => 'nullable|min:10|max:16',
-                'roles_id' => 'nullable|integer',
+                'phone' => 'nullable',
                 'address' => 'nullable',
                 'description' => 'nullable',
                 'profile' => 'nullable',
             ]);
             // if password available we rehash with new password
             if ($request->filled('password')) {
-                $credentials['password'] = Hash::make($credentials);
+                $credentials['password'] = Hash::make($credentials['password']);
             }
             // need to handle profile update
+            $user = Models\User::find($id);
+            // need to handle fileupload to upload profile picture
+            if($request->has('profile') && $credentials['profile'] != ""){
+                // detected if previus file not a linked image
+                // then delete
+                if(!str_starts_with($user->profile, 'http')){
+                    if($user->profile && file_exists(storage_path("app/public".str_replace("storage", "", $user->profile)))){
+                        unlink(storage_path("app/public".str_replace("storage", "", $user->profile)));
+                    }
+                }
+                // save file to storage
+                // file upload from api is base64 file we need to convert to
+                // binary file and save on filestorage
+                $fileData = base64_decode($credentials['profile']);
+                // set filename
+                $filename = uniqid().'.png'; // set default file type is .png
+                $filePath = "users/".$filename;
 
-            $user = Models\User::find($id)->update($credentials);
+                Storage::disk('public')->put($filePath, $fileData);
+                $profile = Storage::url($filePath);
+                $credentials['profile'] = $profile;
+            }else{
+                // because profile doesn't exist we need remove profile from credentials
+                // prevent updated profile with empty string
+                unset($credentials['profile']);
+            }
+            $user->update($credentials);
             return response()->json([
                 'error' => false,
                 'messages' => "Success edit users",
                 'data' => $user,
-                'input' => $credentials,
             ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => true,
-                'messages' => "Failed create user because error occured.",
+                'messages' => "Failed to update user because error occured.",
                 'data' => $e->validator->errors(),
+            ], 400);
+        } catch(\Exception $e){
+            return response()->json([
+                'error' => true,
+                'messages' => 'Failed to update users because error occured.',
+                'data' => $e->getMessage(),
             ], 500);
         }
     });
 
+    // currently not used but in future whenever user
+    // need to delete their account, they can request for account deletion.
     Route::delete("/user/delete/{id}", function (Request $request, $id) {
         try {
-
             $user = Models\User::find($id);
-
             if (!$user) {
                 return response()->json([
                     'error' => true,
@@ -393,7 +447,6 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
                 ]);
                 return back()->with('error', "failed to delte users, because users doesn't exist");
             }
-
             // do delete
             $user->delete();
             return response()->json([
@@ -413,7 +466,7 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
     // cud transactin
     Route::post("/transaction", function (Request $request) {
         try {
-            $transaction = Models\Transaction::where('user_id', $request->user()->id)->get();
+            $transaction = Models\Transaction::where('user_id', $request->user()->id)->orderBy('code', 'desc')->get();
             foreach($transaction as $tx){
                 $tx->Product;
                 $tx->product->ImagesIds;
@@ -451,6 +504,9 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
             ]);
 
             $transaction = Models\Transaction::create($data);
+            $transaction->Product;
+            $transaction->product->ImagesIds;
+
             return response()->json([
                 'error' => false,
                 'messages' => 'success create transaction.',
@@ -462,12 +518,18 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
                 'messages' => "",
                 'data' => $e->validator->errors(),
             ], 500);
+        }catch(\Exception $e){
+            return response()->json([
+                'error' => true,
+                'messages' => "",
+                'data' => $e->getMessage(),
+            ], 500);
         }
     });
 
     Route::post("/transaction/edit/{id}", function (Request $request, $id) {
         try {
-            $data = $request->validation([
+            $data = $request->validate([
                 // 'code' => 'nullable|string|max:255',
                 'tourism_id' => 'nullable|exists:users,id', // Assuming tourism_id refers to users table
                 'user_id' => 'nullable|exists:users,id',
@@ -477,25 +539,31 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
                 'total' => 'nullable|numeric|min:0',
                 'status' => 'nullable|string',
                 'date' => 'nullable|date',
+                'phone_number'=> 'nullable|string',
+                'contact_name'=> 'nullable|string',
+                'order_data'=> 'nullable|string',
             ]);
 
-            $transaction = Models\Transaction::find($id)->update($data);
-
+            $transaction = Models\Transaction::find($id);
+            $transaction->update($data);
 
             return response()->json([
                 'error' => false,
                 'messages' => 'success update transaction',
                 'data' => $transaction,
             ]);
-
-            return back()->with('success', 'success edit transaction');
         } catch (ValidationException $e) {
-
             return response()->json([
                 'error' => true,
-                'messages' => '',
+                'messages' => 'Bad request',
                 'data' => $e->validator->errors(),
-            ]);
+            ], 400);
+        } catch(\Exception $e){
+            return response()->json([
+                'error' => true,
+                'messages' => 'Internal Server Error',
+                'data' => $e->getMessage(),
+            ], 500);
         }
     });
 
@@ -532,15 +600,16 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
         try {
             $tx = Models\Transaction::find($id);
 
-            if(!in_array($tx->status, ["draft"])){
+            if(!in_array($tx->status, ["draft", "inprogress"])){
                 return response()->json([
                     'error' => false,
                     'messages' => '',
                     'data' => [
                         'token' => $tx->payment_id,
                         'redirect_url' => $tx->payment_url,
-                    ]
-                ]);
+                    ],
+                    'other' => $tx,
+                ], 402);
             }
 
             // mendapatkan env variable dari app configuration.
@@ -558,7 +627,6 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
                         "id" => "MID-".$tx->product->id,
                         "price" => $tx->price,
                         "quantity" => $tx->quantity,
-                        "subtotal" => $tx->price * $tx->quantity,
                         "name" => $tx->product->name,
                     ]
                 ],
@@ -595,23 +663,20 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
                 'error' => false,
                 'messages' => "Success create transaction order.",
                 'data' => $snapData,
-                'other' => [
-                    'endpoint' => $endpoint,
-                    'auth' => $auth,
-                ]
+                'other' => $dataMidtrans,
             ]);
         }catch(ValidationException $e){
             return response()->json([
                 'error' => true,
                 'messages' => "Failed to create transaction order.",
                 'data' => $e->validator->errors(),
-            ]);
+            ], 400);
         }catch(\Exception $e){
             return response()->json([
                 'error' => true,
                 'messages' => "Failed to create transaction order.",
                 'data' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     });
 
@@ -631,13 +696,10 @@ Route::group(['prefix' => 'private', 'middleware' => 'auth:sanctum'], function (
 });
 
 
-// jangan mengedit script di bawah ini
-// dapat menyebabkan kehamilan masal :v
-
 Route::any('/', function () {
     return response()->json([
         'error' => false,
-        'messages' => 'Wonokitri Tourism Endpoint Api',
+        'messages' => 'Wonokitri Tourisme Endpoint Api',
         'data' => [
             'version' => '1.0.0'
         ],

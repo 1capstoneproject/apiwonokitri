@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models;
 use App\Http\Controllers;
+use Illuminate\Support\Facades\Artisan;
 
 Route::group(['prefix' => 'auth'], function(){
     Route::get('/login', [Controllers\AuthController::class, 'Login'])->name('login');
@@ -18,9 +19,9 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
     Route::get('/dashboard', function(Request $req){
         return response()->view('pages.dashboard');
     })->name('dashboard.dash');
-    
+
     // banner
-    Route::group(['prefix' => 'banner'], function(){
+    Route::group(['prefix' => 'banner', 'middleware' => 'role:base.role_superadmin'], function(){
         Route::get("/", [Controllers\BannerController::class, 'Banner'])->name('banner.list');
         Route::post("/", [Controllers\BannerController::class, 'BannerCreate'])->name('banner.create');
         Route::delete("/delete/{id}", [Controllers\BannerController::class, 'BannerDelete'])->name('banner.delete');
@@ -38,17 +39,17 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
         Route::put("/toggle/event/{id}", [Controllers\ProductController::class, 'ProductToggleEvent'])->name('product.toggle.event');
         Route::put("/toggle/package/{id}", [Controllers\ProductController::class, 'ProductTogglePackage'])->name('product.toggle.package');
     });
-    
+
     // transaksi
-    Route::group(['prefix' => 'transaction'], function(){
-       Route::get("/", [Controllers\TransactionController::class, 'Transaction'])->name('transaction.list'); 
+    Route::group(['prefix' => 'transaction', 'middleware' => 'role:base.role_admin'], function(){
+       Route::get("/", [Controllers\TransactionController::class, 'Transaction'])->name('transaction.list');
     });
 
-    // users
+    // usrers
     Route::group(['prefix' => 'users'], function(){
-        Route::get("/", [Controllers\UsersController::class, 'Users'])->name('users.list');
-        Route::post("/", [Controllers\UsersController::class, 'UsersCreate'])->name('users.create');
+        Route::get("/", [Controllers\UsersController::class, 'Users'])->middleware('role:base.role_superadmin')->name('users.list');
+        Route::post("/", [Controllers\UsersController::class, 'UsersCreate'])->middleware('role:base.role_superadmin')->name('users.create');
         Route::put("/edit/{id}", [Controllers\UsersController::class, 'UsersEdit'])->name('users.edit');
-        Route::post("/delete/{id}", [Controllers\UsersController::class, 'UsersDelete'])->name('users.delete');
+        Route::post("/delete/{id}", [Controllers\UsersController::class, 'UsersDelete'])->middleware('role:base.role_superadmin')->name('users.delete');
     });
 });
