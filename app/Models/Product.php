@@ -26,14 +26,19 @@ class Product extends Model
         'ImagesIds',
     ];
 
-    public function UsersId()
+    public function User()
     {
-        return $this->belongsTo(Models\User::class);
+        return $this->belongsTo(Models\User::class, 'users_id');
     }
 
     public function ImagesIds()
     {
         return $this->hasMany(Models\Images::class);
+    }
+
+    public function TotalTerjual(){
+        $total = Models\Transaction::where("product_id", $this->id)->where('status', 'paid')->count();
+        return $total;
     }
 
 }

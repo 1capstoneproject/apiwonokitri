@@ -26,6 +26,7 @@ class User extends Authenticatable
         'name',
         'profile',
         'description',
+        'phone',
     ];
 
     /**
@@ -56,5 +57,10 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsTo(\App\Models\Role::class);
+    }
+
+    public function hasRole($role){
+        $role = \App\Models\Role::where('name', $role)->first();
+        return $this->roles->id == $role->id;
     }
 }

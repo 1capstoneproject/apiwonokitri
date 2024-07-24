@@ -57,7 +57,7 @@ class Initialize extends Command
                 'roles_id' => $role->id,
             ]);
 
-            $this->info("Success create role.");
+            $this->info("Success create superadmin.");
         }
 
 

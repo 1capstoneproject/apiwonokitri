@@ -65,7 +65,6 @@ class BannerController extends Controller
             $banner = Models\Banner::find($id);
             if(!$banner){
                 back()->withErrors([
-                    'title' => 'Error Action Edit',
                     'mesages' => 'Error on Edit Banner',
                 ]);
             }
