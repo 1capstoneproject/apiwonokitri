@@ -75,9 +75,9 @@ class Transaction extends Model
     {
         $timestamp = now()->format('YmdHis');
         $alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $randomChars = substr(str_shuffle($alphanumeric), 0, 8);
+        $randomChars = substr(str_shuffle($alphanumeric), 0, 3);
         $code = $timestamp . $randomChars;
-        return "TRX" . substr($code, 0, 32);
+        return "TRX" . substr($code, 0, 16);
     }
 
     public function Product(){
