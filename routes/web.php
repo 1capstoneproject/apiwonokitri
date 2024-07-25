@@ -43,6 +43,7 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
     // transaksi
     Route::group(['prefix' => 'transaction', 'middleware' => 'role:base.role_admin'], function(){
        Route::get("/", [Controllers\TransactionController::class, 'Transaction'])->name('transaction.list');
+       Route::post("/update/{id}", [Controllers\TransactionController::class, 'UpdateStatusTransaction'])->name('transaction.update');
     });
 
     // usrers
